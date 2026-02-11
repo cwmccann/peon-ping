@@ -30,18 +30,18 @@ teardown() {
   [[ "$sound" == *"/packs/peon/sounds/Perm"* ]]
 }
 
-@test "Notification idle_prompt plays a complete sound" {
+@test "Notification idle_prompt does NOT play sound (Stop handles it)" {
   run_peon '{"hook_event_name":"Notification","notification_type":"idle_prompt","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
+  [ "$PEON_EXIT" -eq 0 ]
+  ! afplay_was_called
+}
+
+@test "Stop plays a complete sound" {
+  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
   [ "$PEON_EXIT" -eq 0 ]
   afplay_was_called
   sound=$(afplay_sound)
   [[ "$sound" == *"/packs/peon/sounds/Done"* ]]
-}
-
-@test "Stop does NOT play any sound" {
-  run_peon '{"hook_event_name":"Stop","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"default"}'
-  [ "$PEON_EXIT" -eq 0 ]
-  ! afplay_was_called
 }
 
 @test "UserPromptSubmit does NOT play sound normally" {
@@ -102,8 +102,14 @@ JSON
 # Agent/teammate detection
 # ============================================================
 
-@test "agent session (permission_mode=acceptEdits) suppresses sound" {
-  run_peon '{"hook_event_name":"SessionStart","cwd":"/tmp/myproject","session_id":"agent1","permission_mode":"acceptEdits"}'
+@test "acceptEdits is interactive, NOT suppressed" {
+  run_peon '{"hook_event_name":"SessionStart","cwd":"/tmp/myproject","session_id":"s1","permission_mode":"acceptEdits"}'
+  [ "$PEON_EXIT" -eq 0 ]
+  afplay_was_called
+}
+
+@test "delegate mode suppresses sound (agent session)" {
+  run_peon '{"hook_event_name":"SessionStart","cwd":"/tmp/myproject","session_id":"agent1","permission_mode":"delegate"}'
   [ "$PEON_EXIT" -eq 0 ]
   ! afplay_was_called
 }
