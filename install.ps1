@@ -9,6 +9,10 @@ param(
     [switch]$All
 )
 
+# When run via Invoke-Expression (one-liner install), $PSScriptRoot is empty.
+# Fall back to current directory so Join-Path calls don't receive an empty string.
+$ScriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { $PWD.Path }
+
 $ErrorActionPreference = "Stop"
 
 Write-Host "=== peon-ping Windows installer ===" -ForegroundColor Cyan
@@ -181,7 +185,7 @@ if (-not $Updating) {
 $scriptsDir = Join-Path $InstallDir "scripts"
 New-Item -ItemType Directory -Path $scriptsDir -Force | Out-Null
 
-$winPlaySource = Join-Path $PSScriptRoot "scripts\win-play.ps1"
+$winPlaySource = Join-Path $ScriptDir "scripts\win-play.ps1"
 $winPlayTarget = Join-Path $scriptsDir "win-play.ps1"
 
 if (Test-Path $winPlaySource) {
@@ -539,45 +543,33 @@ Write-Host "Registering Claude Code hooks..."
 
 $hookCmd = "powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File `"$hookScriptPath`""
 
-# Helper function to convert PSCustomObject to hashtable (PS 5.1 compat)
-function ConvertTo-Hashtable {
-    param([Parameter(ValueFromPipeline)]$obj)
-    if ($obj -is [hashtable]) { return $obj }
-    if ($obj -is [System.Collections.IEnumerable] -and $obj -isnot [string]) {
-        return @($obj | ForEach-Object { ConvertTo-Hashtable $_ })
-    }
-    if ($obj -is [PSCustomObject]) {
-        $ht = @{}
-        foreach ($prop in $obj.PSObject.Properties) {
-            $ht[$prop.Name] = ConvertTo-Hashtable $prop.Value
-        }
-        return $ht
-    }
-    return $obj
-}
-
-# Load or create settings
-$settings = @{}
+# Load settings as PSCustomObject (not hashtable) to preserve all existing
+# values — arrays, strings, nested objects — without corruption.
+# Previous approach used ConvertTo-Hashtable which mangled string arrays
+# (e.g. permissions.allow entries became {Length: N}) and empty arrays
+# became empty objects.
+$settings = [PSCustomObject]@{}
 if (Test-Path $SettingsFile) {
     try {
-        $settingsObj = Get-Content $SettingsFile -Raw | ConvertFrom-Json
-        $settings = ConvertTo-Hashtable $settingsObj
+        $settings = Get-Content $SettingsFile -Raw | ConvertFrom-Json
     } catch {
-        $settings = @{}
+        $settings = [PSCustomObject]@{}
     }
 }
 
-if (-not $settings.ContainsKey("hooks")) {
-    $settings["hooks"] = @{}
+# Ensure hooks property exists
+if (-not ($settings | Get-Member -Name "hooks" -MemberType NoteProperty)) {
+    $settings | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([PSCustomObject]@{})
 }
 
-$peonHook = @{
+# Build the peon hook entry as PSCustomObject (not hashtable)
+$peonHook = [PSCustomObject]@{
     type = "command"
     command = $hookCmd
     timeout = 10
 }
 
-$peonEntry = @{
+$peonEntry = [PSCustomObject]@{
     matcher = ""
     hooks = @($peonHook)
 }
@@ -586,9 +578,9 @@ $events = @("SessionStart", "UserPromptSubmit", "Stop", "Notification", "Permiss
 
 foreach ($evt in $events) {
     $eventHooks = @()
-    if ($settings["hooks"].ContainsKey($evt)) {
-        # Remove existing peon entries
-        $eventHooks = @($settings["hooks"][$evt] | Where-Object {
+    if ($settings.hooks | Get-Member -Name $evt -MemberType NoteProperty) {
+        # Remove existing peon entries, keep others
+        $eventHooks = @($settings.hooks.$evt | Where-Object {
             $dominated = $false
             foreach ($h in $_.hooks) {
                 if ($h.command -and ($h.command -match "peon" -or $h.command -match "notify\.sh")) {
@@ -599,7 +591,12 @@ foreach ($evt in $events) {
         })
     }
     $eventHooks += $peonEntry
-    $settings["hooks"][$evt] = $eventHooks
+
+    if ($settings.hooks | Get-Member -Name $evt -MemberType NoteProperty) {
+        $settings.hooks.$evt = $eventHooks
+    } else {
+        $settings.hooks | Add-Member -NotePropertyName $evt -NotePropertyValue $eventHooks
+    }
 }
 
 $settings | ConvertTo-Json -Depth 10 | Set-Content $SettingsFile -Encoding UTF8
@@ -609,7 +606,7 @@ Write-Host "  Hooks registered for: $($events -join ', ')" -ForegroundColor Gree
 Write-Host ""
 Write-Host "Installing skills..."
 
-$skillsSourceDir = Join-Path $PSScriptRoot "skills"
+$skillsSourceDir = Join-Path $ScriptDir "skills"
 $skillsTargetDir = Join-Path $ClaudeDir "skills"
 New-Item -ItemType Directory -Path $skillsTargetDir -Force | Out-Null
 
@@ -648,7 +645,7 @@ if (Test-Path $skillsSourceDir) {
 }
 
 # --- Install uninstall script ---
-$uninstallSource = Join-Path $PSScriptRoot "uninstall.ps1"
+$uninstallSource = Join-Path $ScriptDir "uninstall.ps1"
 $uninstallTarget = Join-Path $InstallDir "uninstall.ps1"
 
 if (Test-Path $uninstallSource) {
