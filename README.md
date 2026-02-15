@@ -41,13 +41,13 @@ Then run `peon-ping-setup` to register hooks and download sound packs. macOS and
 ### Option 2: Installer script (macOS, Linux, WSL2)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/cwmccann/peon-ping/main/install.sh | bash
 ```
 
 ### Option 3: Installer for Windows
 
 ```powershell
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.ps1" -UseBasicParsing | Invoke-Expression
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/cwmccann/peon-ping/main/install.ps1" -UseBasicParsing | Invoke-Expression
 ```
 
 Installs 10 curated English packs by default. Re-run to update while preserving config/state. Or **[pick your packs interactively at peonping.com](https://peonping.com/#picker)** and get a custom install command.
@@ -65,9 +65,9 @@ Useful installer flags:
 Examples:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh | bash -s -- --all
-curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh | bash -s -- --packs=peon,glados
-curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/install.sh | bash -s -- --local
+curl -fsSL https://raw.githubusercontent.com/cwmccann/peon-ping/main/install.sh | bash -s -- --all
+curl -fsSL https://raw.githubusercontent.com/cwmccann/peon-ping/main/install.sh | bash -s -- --packs=peon,glados
+curl -fsSL https://raw.githubusercontent.com/cwmccann/peon-ping/main/install.sh | bash -s -- --local
 ```
 
 If a global install exists and you install local (or vice versa), the installer prompts you to remove the existing one to avoid conflicts.
@@ -75,7 +75,7 @@ If a global install exists and you install local (or vice versa), the installer 
 ### Option 4: Clone and inspect first
 
 ```bash
-git clone https://github.com/PeonPing/peon-ping.git
+git clone https://github.com/cwmccann/peon-ping.git
 cd peon-ping
 ./install.sh
 ```
@@ -177,8 +177,8 @@ peon-ping works with any agentic IDE that supports hooks. Adapters translate IDE
 | **Claude Code** | Built-in | `curl \| bash` install handles everything |
 | **OpenAI Codex** | Adapter | Add `notify = ["bash", "/absolute/path/to/.claude/hooks/peon-ping/adapters/codex.sh"]` to `~/.codex/config.toml` |
 | **Cursor** | Adapter | Add hook entries to `~/.cursor/hooks.json` pointing to `adapters/cursor.sh` |
-| **OpenCode** | Adapter | `curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/opencode.sh \| bash` ([setup](#opencode-setup)) |
-| **Kilo CLI** | Adapter | `curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/kilo.sh \| bash` ([setup](#kilo-cli-setup)) |
+| **OpenCode** | Adapter | `curl -fsSL https://raw.githubusercontent.com/cwmccann/peon-ping/main/adapters/opencode.sh \| bash` ([setup](#opencode-setup)) |
+| **Kilo CLI** | Adapter | `curl -fsSL https://raw.githubusercontent.com/cwmccann/peon-ping/main/adapters/kilo.sh \| bash` ([setup](#kilo-cli-setup)) |
 | **Kiro** | Adapter | Add hook entries to `~/.kiro/agents/peon-ping.json` pointing to `adapters/kiro.sh` ([setup](#kiro-setup)) |
 | **Windsurf** | Adapter | Add hook entries to `~/.codeium/windsurf/hooks.json` pointing to `adapters/windsurf.sh` ([setup](#windsurf-setup)) |
 | **Google Antigravity** | Adapter | `bash ~/.claude/hooks/peon-ping/adapters/antigravity.sh` (requires `fswatch`: `brew install fswatch`) |
@@ -190,7 +190,7 @@ A native TypeScript plugin for [OpenCode](https://opencode.ai/) with full [CESP 
 **Quick install:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/opencode.sh | bash
+curl -fsSL https://raw.githubusercontent.com/cwmccann/peon-ping/main/adapters/opencode.sh | bash
 ```
 
 The installer copies `peon-ping.ts` to `~/.config/opencode/plugins/` and creates a config at `~/.config/opencode/peon-ping/config.json`. Packs are stored at the shared CESP path (`~/.openpeon/packs/`).
@@ -221,7 +221,7 @@ The installer copies `peon-ping.ts` to `~/.config/opencode/plugins/` and creates
 By default, `terminal-notifier` shows a generic Terminal icon. The included script replaces it with the peon icon using built-in macOS tools (`sips` + `iconutil`) — no extra dependencies.
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/opencode/setup-icon.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/cwmccann/peon-ping/main/adapters/opencode/setup-icon.sh)
 ```
 
 Or if installed locally (Homebrew / git clone):
@@ -243,7 +243,7 @@ A native TypeScript plugin for [Kilo CLI](https://github.com/kilocode/cli) with 
 **Quick install:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/PeonPing/peon-ping/main/adapters/kilo.sh | bash
+curl -fsSL https://raw.githubusercontent.com/cwmccann/peon-ping/main/adapters/kilo.sh | bash
 ```
 
 The installer copies `peon-ping.ts` to `~/.config/kilo/plugins/` and creates a config at `~/.config/kilo/peon-ping/config.json`. Packs are stored at the shared CESP path (`~/.openpeon/packs/`).
