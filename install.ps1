@@ -24,7 +24,7 @@ $ClaudeDir = Join-Path $env:USERPROFILE ".claude"
 $InstallDir = Join-Path $ClaudeDir "hooks\peon-ping"
 $SettingsFile = Join-Path $ClaudeDir "settings.json"
 $RegistryUrl = "https://peonping.github.io/registry/index.json"
-$RepoBase = "https://raw.githubusercontent.com/PeonPing/peon-ping/main"
+$RepoBase = "https://raw.githubusercontent.com/cwmccann/peon-ping/main"
 
 # --- Check Claude Code is installed ---
 $Updating = $false
