@@ -41,7 +41,7 @@ peon-ping is part of the [PeonPing](https://github.com/PeonPing) org:
 
 | Repo | Purpose |
 |---|---|
-| **[peon-ping](https://github.com/PeonPing/peon-ping)** (this repo) | CLI tool, installer, hook runtime, IDE adapters |
+| **[peon-ping](https://github.com/cwmccann/peon-ping)** (this repo) | CLI tool, installer, hook runtime, IDE adapters |
 | **[registry](https://github.com/PeonPing/registry)** | Pack registry (`index.json` served via GitHub Pages at `peonping.github.io/registry/index.json`) |
 | **[og-packs](https://github.com/PeonPing/og-packs)** | Official sound packs (40 packs, tagged releases) |
 | **[homebrew-tap](https://github.com/PeonPing/homebrew-tap)** | Homebrew formula (`brew install PeonPing/tap/peon-ping`) |
